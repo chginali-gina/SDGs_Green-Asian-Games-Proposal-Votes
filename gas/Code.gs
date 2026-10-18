@@ -64,7 +64,17 @@ function setup() {
   const def = ss.getSheetByName('工作表1') || ss.getSheetByName('Sheet1');
   if (def && ss.getSheets().length > 1) ss.deleteSheet(def);
   CacheService.getScriptCache().removeAll(['proposals', 'codes']);
-  SpreadsheetApp.getUi().alert('初始化完成！\n老師密碼預設為 sdgs2026（可用選單 ③ 修改）。\n請在「提案」工作表填入 6 組的提案，再用選單 ② 產生投票碼。');
+  notify_('初始化完成！\n老師密碼預設為 sdgs2026（可用選單 ③ 修改）。\n請在「提案」工作表填入 6 組的提案，再用選單 ② 產生投票碼。');
+}
+
+/** 一鍵開始：初始化工作表＋產生 40 組投票碼（可直接在 Apps Script 編輯器執行） */
+function quickStart() {
+  setup();
+  if (getCodes_().length === 0) generateCodes(40);
+}
+
+function notify_(msg) {
+  try { SpreadsheetApp.getUi().alert(msg); } catch (e) { Logger.log(msg); }
 }
 
 function styleHeader_(sh, n) {
