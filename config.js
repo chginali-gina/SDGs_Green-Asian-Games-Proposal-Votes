@@ -4,7 +4,7 @@
             （留空 = 示範模式，可先在同一台電腦試玩）
    ========================================================= */
 window.VOTE_CONFIG = {
-  API_URL: '',
+  API_URL: 'https://script.google.com/macros/s/AKfycbx1PfwuVxM9pS9rt2v2_TfE2LOLdwzIdAGiU0SxuJFd3XLllGXweeMv3ta7CRkpztm8/exec',
   EVENT_TITLE: 'SDGs Green Asian Games',
   EVENT_SUBTITLE: '綠色亞運提案大投票',
   REQUIRE_REASON: true,   // 贊成時是否必須寫理由
