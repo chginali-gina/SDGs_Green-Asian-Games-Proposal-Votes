@@ -116,8 +116,10 @@ function promptPassword() {
 }
 
 function resetAll() {
-  const ui = SpreadsheetApp.getUi();
-  if (ui.alert('確定清空所有回合的票數與理由？', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  try {
+    const ui = SpreadsheetApp.getUi();
+    if (ui.alert('確定清空所有回合的票數與理由？', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  } catch (e) { /* 從編輯器執行時沒有對話框，直接清空 */ }
   const props = PropertiesService.getScriptProperties();
   const pw = props.getProperty('ADMIN_PW');
   props.deleteAllProperties();
@@ -127,7 +129,7 @@ function resetAll() {
     const s = ss.getSheetByName(n);
     if (s && s.getLastRow() > 1) s.getRange(2, 1, s.getLastRow() - 1, s.getLastColumn()).clearContent();
   });
-  ui.alert('已清空。');
+  notify_('已清空所有投票紀錄。');
 }
 
 /* ---------- Web API ---------- */
