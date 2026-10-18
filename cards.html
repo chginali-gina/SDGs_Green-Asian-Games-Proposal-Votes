@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>列印投票卡｜SDGs 綠色亞運提案投票</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  main { max-width: 1000px; margin: 0 auto; padding: 40px 16px; }
+  .ctrl { max-width: 460px; margin: 0 auto 30px; padding: 26px; text-align: center; }
+  .ctrl input { width: 100%; font-size: 20px; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--line); background: rgba(0,0,0,.35); color: var(--ink); margin: 14px 0; text-align: center; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .vc { background: #fff; color: #0b2a20; border-radius: 14px; padding: 14px; display: grid; grid-template-columns: 1fr 96px; gap: 10px; align-items: center; border: 2px dashed #9bc7a8; }
+  .vc .t { font-size: 11px; font-weight: 900; color: #2f7a52; letter-spacing: .05em; }
+  .vc .c { font-family: 'Bungee', monospace; font-size: 28px; letter-spacing: .12em; margin: 4px 0; }
+  .vc .s { font-size: 11px; color: #555; line-height: 1.4; }
+  .vc .q img, .vc .q canvas { width: 96px !important; height: 96px !important; }
+  .bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  @media print {
+    @page { size: A4; margin: 10mm; }
+    body { background: #fff !important; } body::before, .ctrl, .bar, .credit, .demo-badge { display: none !important; }
+    main { padding: 0; max-width: none; }
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 6mm; }
+    .vc { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <section class="card ctrl" id="ctrl">
+    <div class="kicker">PRINT BALLOT CARDS</div>
+    <h1 style="margin:8px 0 4px">🎟️ 列印投票卡</h1>
+    <p style="color:var(--muted);margin:0">每張卡一組投票碼，QR Code 掃了會自動帶入。<br>A4 一頁 18 張，剪開後隨機發下去，誰拿到哪張不必記錄。</p>
+    <input type="password" id="pw" placeholder="老師密碼">
+    <button class="btn" id="go">產生投票卡</button>
+  </section>
+  <div class="bar hidden" id="bar"><button class="btn sun" onclick="print()">🖨️ 列印</button><span id="info" style="align-self:center;color:var(--muted)"></span></div>
+  <div class="grid" id="grid"></div>
+</main>
+<div class="credit" id="credit"></div>
+<script src="config.js"></script>
+<script src="assets/common.js"></script>
+<script>
+(function () {
+  const K = window.VoteKit, $ = id => document.getElementById(id);
+  $('credit').textContent = K.CFG.CREDIT || '';
+  if (K.DEMO) $('pw').placeholder = '示範模式：直接按產生';
+  const base = new URL('vote.html', location.href).href;
+  $('go').onclick = async () => {
+    $('go').disabled = true;
+    try {
+      const r = await K.api('codes', { pw: $('pw').value.trim() });
+      if (!r.ok) { K.toast(r.error || '密碼錯誤', true); return; }
+      if (!r.codes.length) { K.toast('還沒有投票碼，請先在試算表選單產生', true); return; }
+      $('grid').innerHTML = '';
+      r.codes.forEach(c => {
+        const d = document.createElement('div');
+        d.className = 'vc';
+        d.innerHTML = '<div><div class="t">' + K.esc(K.CFG.EVENT_TITLE) + ' 投票卡</div><div class="c">' + c + '</div>' +
+          '<div class="s">掃 QR Code 或到<br>' + K.esc(base.replace(/^https?:\/\//, '')) + '<br>輸入投票碼・匿名投票</div></div><div class="q"></div>';
+        $('grid').appendChild(d);
+        try { new QRCode(d.querySelector('.q'), { text: base + '?code=' + c, width: 96, height: 96, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {}
+      });
+      $('info').textContent = '共 ' + r.codes.length + ' 張';
+      $('bar').classList.remove('hidden');
+    } catch (e) { K.toast('連線失敗', true); }
+    finally { $('go').disabled = false; }
+  };
+})();
+</script>
+</body>
+</html>

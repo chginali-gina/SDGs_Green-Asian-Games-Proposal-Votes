@@ -1,0 +1,110 @@
+:root {
+  --bg: #04251c;
+  --bg2: #0a3a2b;
+  --ink: #f2fbe6;
+  --muted: #a9c9b6;
+  --lime: #c6ff3d;
+  --sun: #ffd23f;
+  --sky: #3ddcff;
+  --pink: #ff7ab6;
+  --yes: #3ef08a;
+  --no: #ff5a5f;
+  --card: rgba(255, 255, 255, .07);
+  --line: rgba(255, 255, 255, .14);
+  --danger: #ff3b3b;
+  --radius: 22px;
+  --display: 'Bungee', 'Noto Sans TC', system-ui, sans-serif;
+  --body: 'Noto Sans TC', system-ui, -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: var(--body);
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(198, 255, 61, .16), transparent 60%),
+    radial-gradient(900px 600px at 110% 10%, rgba(61, 220, 255, .14), transparent 60%),
+    radial-gradient(800px 500px at 50% 120%, rgba(255, 210, 63, .12), transparent 60%),
+    var(--bg);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+body::before { /* 細點網格 */
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+main, header, .layer { position: relative; z-index: 1; }
+button { font-family: inherit; cursor: pointer; }
+input, textarea { font-family: inherit; }
+.hidden { display: none !important; }
+
+/* ---------- 共用元件 ---------- */
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: .02em; }
+.brand .leaf { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--lime); color: #063; font-size: 20px; box-shadow: 0 0 24px rgba(198,255,61,.5); }
+.kicker { font-family: var(--display); font-size: 13px; letter-spacing: .14em; color: var(--lime); text-transform: uppercase; }
+
+.btn {
+  border: 0; border-radius: 999px; padding: 14px 26px; font-weight: 900; font-size: 18px;
+  background: var(--lime); color: #052; box-shadow: 0 6px 0 #6f9d17, 0 10px 30px rgba(198,255,61,.25);
+  transition: transform .08s, box-shadow .08s, filter .2s;
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #6f9d17; }
+.btn:disabled { filter: grayscale(1) brightness(.6); cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line); }
+.btn.ghost:active { transform: translateY(2px); }
+.btn.sun { background: var(--sun); box-shadow: 0 6px 0 #b8901a, 0 10px 30px rgba(255,210,63,.25); color: #3a2a00; }
+.btn.danger { background: var(--no); color: #fff; box-shadow: 0 6px 0 #a92d31; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); backdrop-filter: blur(6px); }
+
+/* ---------- 左上角計時器 ---------- */
+.timer {
+  position: fixed; top: 14px; left: 14px; z-index: 50;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 16px 8px 8px; border-radius: 999px;
+  background: rgba(0, 0, 0, .55); border: 2px solid var(--lime);
+  box-shadow: 0 0 30px rgba(198,255,61,.35);
+  transition: border-color .3s, box-shadow .3s, transform .2s;
+}
+.timer svg { width: 54px; height: 54px; transform: rotate(-90deg); }
+.timer .track { stroke: rgba(255,255,255,.15); }
+.timer .ring { stroke: var(--lime); transition: stroke .3s; stroke-linecap: round; }
+.timer .num { font-family: var(--display); font-size: 34px; line-height: 1; min-width: 2.2ch; text-align: right; font-variant-numeric: tabular-nums; }
+.timer .lbl { font-size: 12px; color: var(--muted); line-height: 1.1; font-weight: 700; }
+.timer.idle { border-color: var(--line); box-shadow: none; }
+.timer.idle .ring { stroke: transparent; }
+.timer.warn { border-color: var(--sun); box-shadow: 0 0 34px rgba(255,210,63,.55); }
+.timer.warn .ring { stroke: var(--sun); }
+.timer.danger { border-color: var(--danger); box-shadow: 0 0 40px rgba(255,59,59,.8); animation: pulse .5s ease-in-out infinite alternate; }
+.timer.danger .ring { stroke: var(--danger); }
+.timer.danger .num { color: #ffd6d6; }
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+
+/* 最後 10 秒紅色暈影 */
+.vignette { position: fixed; inset: 0; pointer-events: none; z-index: 40; opacity: 0; transition: opacity .4s;
+  box-shadow: inset 0 0 160px 40px rgba(255, 30, 30, .55); }
+.vignette.on { opacity: 1; animation: vig 1s ease-in-out infinite; }
+@keyframes vig { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+
+.shake { animation: shake .35s linear infinite; }
+@keyframes shake { 0%,100% { transform: translate(0,0); } 25% { transform: translate(-3px,2px); } 50% { transform: translate(3px,-2px); } 75% { transform: translate(-2px,-3px); } }
+
+/* ---------- 彩帶 ---------- */
+.confetti-box { position: fixed; inset: 0; pointer-events: none; z-index: 90; overflow: hidden; }
+.confetti-box i { position: absolute; top: -20px; width: 10px; height: 16px; animation: fall linear forwards; }
+@keyframes fall { to { transform: translate(var(--dx), 110vh) rotate(var(--rot)); } }
+
+.demo-badge { position: fixed; right: 12px; bottom: 12px; z-index: 95; background: var(--sun); color: #3a2a00; font-weight: 900; font-size: 12px; padding: 6px 12px; border-radius: 999px; box-shadow: 0 4px 14px rgba(0,0,0,.4); }
+
+.credit { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 16px 40px; opacity: .8; }
+
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); opacity: 0; z-index: 99;
+  background: #111; border: 1px solid var(--line); padding: 12px 20px; border-radius: 14px; font-weight: 700; transition: .25s; max-width: calc(100vw - 32px); text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.err { border-color: var(--no); color: #ffd6d6; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

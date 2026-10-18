@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#04251c">
+<title>SDGs 綠色亞運提案投票</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  main { max-width: 980px; margin: 0 auto; padding: 8vh 16px 20px; }
+  .hero { text-align: center; }
+  .hero .torch { font-size: 72px; display: inline-block; animation: flame 1.6s ease-in-out infinite; }
+  @keyframes flame { 50% { transform: translateY(-6px) rotate(4deg) scale(1.05); } }
+  h1 { font-family: var(--display); font-size: clamp(30px, 6vw, 64px); line-height: 1.05; margin: 10px 0 8px; letter-spacing: .02em;
+    background: linear-gradient(90deg, var(--lime), var(--sun), var(--sky)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: clamp(20px, 3vw, 30px); font-weight: 900; margin: 0; }
+  .what { color: var(--muted); max-width: 34em; margin: 14px auto 0; line-height: 1.7; }
+  .doors { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 44px; }
+  .door { display: block; text-decoration: none; color: var(--ink); padding: 26px 24px; transition: transform .15s, border-color .2s, box-shadow .2s; }
+  .door:hover { transform: translateY(-4px); border-color: var(--lime); box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+  .door .e { font-size: 42px; }
+  .door h2 { margin: 10px 0 6px; font-size: 22px; }
+  .door p { margin: 0; color: var(--muted); line-height: 1.6; font-size: 15px; }
+  .door.main { border: 2px solid var(--lime); background: rgba(198,255,61,.08); }
+  .steps { margin-top: 40px; padding: 22px 24px; }
+  .steps h3 { margin: 0 0 12px; }
+  .steps ol { margin: 0; padding-left: 1.3em; line-height: 1.9; color: var(--muted); }
+  .steps b { color: var(--ink); }
+</style>
+</head>
+<body>
+<main>
+  <div class="hero">
+    <div class="torch">🔥</div>
+    <div class="kicker" id="ev"></div>
+    <h1>PROPOSAL<br>VOTE</h1>
+    <p class="sub" id="evSub"></p>
+    <p class="what">六組提案，每組 60 秒。每個人用手機匿名投下「贊成／不贊成」，贊成可以寫理由。倒數歸零，票數和所有理由同時揭曉。</p>
+  </div>
+  <div class="doors">
+    <a class="card door main" href="vote.html"><div class="e">📱</div><h2>我是學生，進場投票</h2><p>輸入投票碼，跟著大螢幕倒數投票。</p></a>
+    <a class="card door" href="screen.html"><div class="e">📺</div><h2>老師大螢幕</h2><p>投影用：開始每一組的倒數、開票、看理由牆與總排名。</p></a>
+    <a class="card door" href="cards.html"><div class="e">🎟️</div><h2>列印投票卡</h2><p>每人一張投票碼＋QR Code，掃了直接進場。</p></a>
+  </div>
+  <div class="card steps">
+    <h3>📋 課堂流程</h3>
+    <ol>
+      <li><b>課前</b>：在 Google Sheet「提案」填好 6 組提案，印出投票卡發給每位同學。</li>
+      <li><b>上課</b>：投影「老師大螢幕」，同學掃投票卡上的 QR Code 進場。</li>
+      <li><b>每一組</b>：按「開始投票」→ 60 秒倒數 → 自動開票，揭曉票數與贊成理由。</li>
+      <li><b>全部結束</b>：按「🏆 總結果」看六組贊成率排名。</li>
+    </ol>
+  </div>
+</main>
+<div class="credit" id="credit"></div>
+<script src="config.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  const C = window.VoteKit.CFG;
+  document.getElementById('ev').textContent = C.EVENT_TITLE || '';
+  document.getElementById('evSub').textContent = C.EVENT_SUBTITLE || '';
+  document.getElementById('credit').textContent = C.CREDIT || '';
+</script>
+</body>
+</html>
