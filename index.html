@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=2">
+<link rel="stylesheet" href="assets/style.css?v=3">
 <style>
   main { max-width: 980px; margin: 0 auto; padding: 8vh 16px 20px; }
   .hero { text-align: center; }
@@ -38,7 +38,7 @@
     <div class="kicker" id="ev"></div>
     <h1>PROPOSAL<br>VOTE</h1>
     <p class="sub" id="evSub"></p>
-    <p class="what">六組提案，每組 60 秒。每個人用手機匿名投下「贊成／不贊成」，贊成可以寫理由。倒數歸零，票數和所有理由同時揭曉。</p>
+    <p class="what">六組提案，每組 1 分半（90 秒）。每個人用手機匿名投下「贊成／不贊成」，贊成可以寫理由。倒數歸零，票數和所有理由同時揭曉。</p>
   </div>
   <div class="doors">
     <a class="card door main" href="vote.html"><div class="e">📱</div><h2>我是學生，進場投票</h2><p>輸入投票碼，跟著大螢幕倒數投票。</p></a>
@@ -50,14 +50,14 @@
     <ol>
       <li><b>課前</b>：在 Google Sheet「提案」填好 6 組提案，印出投票卡發給每位同學。</li>
       <li><b>上課</b>：投影「老師大螢幕」，同學掃投票卡上的 QR Code 進場。</li>
-      <li><b>每一組</b>：按「開始投票」→ 60 秒倒數 → 自動開票，揭曉票數與贊成理由。</li>
+      <li><b>每一組</b>：按「開始投票」→ 90 秒倒數 → 自動開票，揭曉票數與贊成理由。</li>
       <li><b>全部結束</b>：按「🏆 總結果」看六組贊成率排名。</li>
     </ol>
   </div>
 </main>
 <div class="credit" id="credit"></div>
-<script src="config.js?v=2"></script>
-<script src="assets/common.js?v=2"></script>
+<script src="config.js?v=3"></script>
+<script src="assets/common.js?v=3"></script>
 <script>
   const C = window.VoteKit.CFG;
   document.getElementById('ev').textContent = C.EVENT_TITLE || '';

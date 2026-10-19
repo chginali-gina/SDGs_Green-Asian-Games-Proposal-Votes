@@ -13,7 +13,7 @@ const SH_CODES = '投票碼';
 const SH_RESULTS = '結果';
 const SH_REASONS = '贊成理由';
 const ROUNDS = 6;
-const ROUND_MS = 60 * 1000;   // 每回合 60 秒
+const ROUND_MS = 90 * 1000;   // 每回合 90 秒（1 分半）
 const GRACE_MS = 1500;        // 網路延遲寬限
 const REASON_MAX = 120;
 

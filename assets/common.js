@@ -16,7 +16,7 @@
     { g: '第 6 組', title: '碳足跡 App：觀眾自己算、自己抵換', desc: '交通與餐飲碳排一鍵計算，可認養植樹抵換' },
   ];
   const DEMO_TOTAL = 36;
-  const ROUND_MS = 60000, GRACE_MS = 1500;
+  const ROUND_MS = 90000, GRACE_MS = 1500;
   function dLoad() {
     try { return JSON.parse(localStorage.getItem(DEMO_KEY)) || null; } catch (e) { return null; }
   }
@@ -235,7 +235,7 @@
     el.setAttribute('role', 'timer');
     el.innerHTML = '<svg viewBox="0 0 60 60"><circle class="track" cx="30" cy="30" r="25" fill="none" stroke-width="6"/>' +
       '<circle class="ring" cx="30" cy="30" r="25" fill="none" stroke-width="6" stroke-dasharray="157.08" stroke-dashoffset="0"/></svg>' +
-      '<div><div class="num">60</div><div class="lbl">' + esc(label || '秒') + '</div></div>';
+      '<div><div class="num">90</div><div class="lbl">' + esc(label || '秒') + '</div></div>';
     document.body.appendChild(el);
     const num = el.querySelector('.num'), ring = el.querySelector('.ring'), lbl = el.querySelector('.lbl');
     return {

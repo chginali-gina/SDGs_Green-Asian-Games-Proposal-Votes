@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=2">
+<link rel="stylesheet" href="assets/style.css?v=3">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   body { min-height: 100vh; }
@@ -165,7 +165,7 @@
       <p class="pdesc" id="iDesc"></p>
     </div>
     <div class="idle-row">
-      <div class="center"><button class="btn go" id="goBtn">▶ 開始投票（60 秒）</button>
+      <div class="center"><button class="btn go" id="goBtn">▶ 開始投票（1 分半）</button>
         <p style="color:var(--muted);margin-top:16px">按下後全班手機同步倒數，時間到立刻開票</p></div>
       <div class="card join"><div class="qr" id="qr"></div><div class="url"><b>📱 掃碼投票</b><span id="joinUrl"></span></div></div>
     </div>
@@ -231,8 +231,8 @@
 <div class="vignette" id="vig"></div>
 <div class="credit" id="credit"></div>
 
-<script src="config.js?v=2"></script>
-<script src="assets/common.js?v=2"></script>
+<script src="config.js?v=3"></script>
+<script src="assets/common.js?v=3"></script>
 <script>
 (function () {
   const K = window.VoteKit, CFG = K.CFG, $ = id => document.getElementById(id);
@@ -282,7 +282,7 @@
   function idle() {
     const p = prop(sel);
     $('iG').textContent = p.g; $('iTitle').textContent = p.title; $('iDesc').textContent = p.desc || '';
-    timer.set(null, 60000, '每組 60 秒');
+    timer.set(null, 90000, '每組 90 秒');
     show('mIdle'); tabs();
   }
 
@@ -387,7 +387,7 @@
   setInterval(() => {
     if (!st || mode !== 'mOpen') return;
     const left = st.endAt - K.serverNow();
-    const total = st.roundMs || 60000;
+    const total = st.roundMs || 90000;
     if (left > 0) {
       timer.set(left, total);
       const s = Math.ceil(left / 1000);
@@ -443,7 +443,7 @@
     $('raceY').style.width = '50%'; $('raceN').style.width = '50%'; $('raceY').textContent = ''; $('raceN').textContent = '';
     $('verdict').innerHTML = ''; $('wall').innerHTML = ''; $('rCount').textContent = res.reasons.length;
     show('mReveal'); tabs(); window.scrollTo({ top: 0 });
-    timer.set(null, 60000, '已開票');
+    timer.set(null, 90000, '已開票');
     K.SFX.cymbal();
     const dur = quick ? 600 : 2200;
     const tot = res.yes + res.no;
