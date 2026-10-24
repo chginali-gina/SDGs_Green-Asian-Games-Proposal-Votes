@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>永續島老師儀表板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: control bar, KPI row, then two-column grid (island split + word misses | roster), timeline/reason wall below */
+:root{
+  --bg:#eef6f8; --paper:#ffffff; --ink:#14313b; --muted:#557079; --line:#d6e5ea;
+  --accent:#0d6c8a; --gold:#a87200; --good:#2e7d4f; --bad:#b4372f; --warn:#b26b00;
+  --display:"Huninn","Noto Sans TC",system-ui,sans-serif;
+  --body:"Noto Sans TC",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0c2028; --paper:#132b35; --ink:#e7f2f5; --muted:#9db7bf; --line:#24485a;
+  --accent:#5cc3e0; --gold:#f2c14e; --good:#6fd39a; --bad:#ff8a7d; --warn:#f2a64e; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(24px,4vw,34px);margin:0;line-height:1.2}
+.kicker{font-size:12px;letter-spacing:.12em;color:var(--accent);font-weight:700}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;border:0;background:transparent;color:var(--muted);border-radius:999px;padding:4px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--paper)}
+select,input{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+.btn{font:inherit;font-weight:700;border:0;background:var(--accent);color:var(--paper);border-radius:10px;padding:7px 14px;cursor:pointer}
+.ghost{font:inherit;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:6px 12px;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible,tr:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.stamp{margin-left:auto;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.kpi{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.kpi .lb{font-size:12px;color:var(--muted)}
+.kpi b{display:block;font-family:var(--display);font-weight:400;font-size:28px;line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:14px;margin-top:14px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:14px 16px;min-width:0}
+.card h2{font-family:var(--display);font-weight:400;font-size:20px;margin:0}
+.card .sub{color:var(--muted);font-size:13px;margin:2px 0 10px}
+.split{display:grid;gap:5px}
+.srow{display:grid;grid-template-columns:110px minmax(0,1fr) 54px;gap:8px;align-items:center;font-size:13px}
+.srow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbar{display:flex;height:14px;border-radius:99px;overflow:hidden;background:var(--line)}
+.sbar span{display:block;height:100%}
+.sA{background:var(--accent)}.sB{background:var(--gold)}.sC{background:var(--good)}
+.srow .n{font-variant-numeric:tabular-nums;color:var(--muted);text-align:right}
+.hot{font-size:11px;font-weight:700;color:var(--bad)}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:6px 8px;white-space:nowrap;cursor:pointer}
+td{border-bottom:1px solid var(--line);padding:7px 8px;white-space:nowrap}
+tr.r{cursor:pointer}
+tr.r:hover td,tr.r.sel td{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.pill{display:inline-block;border-radius:99px;padding:0 8px;font-size:12px;font-weight:700}
+.pill.idle{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.pill.live{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+.pill.done{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}
+.words{display:grid;gap:4px;font-size:13px}
+.words div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding:3px 0}
+.tl{display:grid;gap:6px;max-height:520px;overflow:auto;padding-right:4px}
+.ev{display:grid;grid-template-columns:52px 70px minmax(0,1fr);gap:8px;font-size:13px;border-left:3px solid var(--line);padding:2px 0 2px 8px}
+.ev time{color:var(--muted);font-variant-numeric:tabular-nums}
+.ev .ty{font-weight:700}
+.ev.decide{border-color:var(--accent)}.ev.quiz.wrong{border-color:var(--bad)}.ev.crisis,.ev.ripple{border-color:var(--warn)}.ev.card{border-color:var(--good)}
+.reasons{display:grid;gap:8px}
+.rs{border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13px}
+.rs .meta{color:var(--muted);font-size:12px}
+.tag{display:inline-block;border-radius:99px;padding:0 8px;color:#fff;font-size:12px;font-weight:700}
+.setup{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-top:14px}
+.setup ol{margin:6px 0 0;padding-left:20px}
+.err{color:var(--bad);font-weight:700}
+footer{margin-top:24px;text-align:center;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">SDGs ISLAND · TEACHER</div>
+  <h1>永續島老師儀表板</h1>
+
+  <div class="setup" id="setup" hidden>
+    <b>還沒連上試算表。</b>
+    <ol>
+      <li>在 Google 試算表的 Apps Script 貼上 Code.gs，修改 TEACHER_KEY，部署成網頁應用程式（所有人可存取）。</li>
+      <li>把部署網址（結尾 /exec）交給 Claude 更新網站，或先貼在下方測試。</li>
+    </ol>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="epIn" placeholder="https://script.google.com/macros/s/…/exec" style="flex:1;min-width:240px"><button class="ghost" id="epSave">使用這個網址</button></div>
+  </div>
+
+  <div class="bar">
+    <div class="seg" role="group" aria-label="版本"><button data-v="basic" aria-pressed="true">初期基本版</button><button data-v="pro" aria-pressed="false">後期進階版</button></div>
+    <select id="cls" aria-label="班級"><option value="">全部班級</option></select>
+    <input id="key" type="password" placeholder="老師密碼" aria-label="老師密碼" style="width:130px">
+    <button class="btn" id="load">更新資料</button>
+    <label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" id="auto" checked> 每 20 秒自動更新</label>
+    <span class="stamp" id="stamp">尚未載入</span>
+  </div>
+  <p class="err" id="err" hidden></p>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid">
+    <div style="display:grid;gap:14px;min-width:0">
+      <section class="card">
+        <h2>全班決策分布</h2>
+        <p class="sub">每座島選 A、B、C 的人數。最接近五五波的島標為「最分歧」，適合拿來開全班討論。</p>
+        <div class="split" id="split"></div>
+        <div class="legend"><span><i class="sA"></i>A</span><span><i class="sB"></i>B</span><span id="lgC"><i class="sC"></i>C 自創</span></div>
+      </section>
+      <section class="card">
+        <h2>單字錯誤排行</h2>
+        <p class="sub">英文補給站答錯比例最高的字，可以當下一堂課的暖身複習。</p>
+        <div class="words" id="words"></div>
+      </section>
+    </div>
+    <div style="display:grid;gap:14px;min-width:0">
+      <section class="card">
+        <h2 id="rosterH">學生名單</h2>
+        <p class="sub">點一列看完整學習軌跡。5 分鐘沒有動作會標為「停住」，可以過去關心。</p>
+        <div class="tablewrap"><table><thead id="rosterHead"></thead><tbody id="roster"></tbody></table></div>
+      </section>
+      <section class="card" id="tlCard" hidden>
+        <h2 id="tlH">學習軌跡</h2>
+        <p class="sub" id="tlSub"></p>
+        <div class="tl" id="tl"></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="card" style="margin-top:14px" id="wallCard">
+    <h2 id="wallH">反思牆</h2>
+    <p class="sub" id="wallSub"></p>
+    <div style="margin-bottom:10px" id="wallFilter"></div>
+    <div class="reasons" id="wall"></div>
+  </section>
+
+  <footer>Gina的SDGs多元選修課</footer>
+</div>
+
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script>
+const CFG=window.SDG_CONFIG||{};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const byN=n=>SDG[n-1];
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+let endpoint=CFG.endpoint||ls.get("sdgDashEp")||"";
+let ver="basic", rows=[], selected=null, wallIsland=0, timer=null;
+$("key").value=ls.get("sdgDashKey")||"";
+$("setup").hidden=!!endpoint;
+$("epSave").addEventListener("click",()=>{const v=$("epIn").value.trim();if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(v)){showErr("網址格式不對，應該是 https://script.google.com/macros/s/…/exec");return}endpoint=v;ls.set("sdgDashEp",v);$("setup").hidden=true;load()});
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{ver=b.dataset.v;selected=null;wallIsland=0;document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));load()}));
+$("load").addEventListener("click",load);
+$("cls").addEventListener("change",()=>{selected=null;render()});
+$("auto").addEventListener("change",schedule);
+function showErr(m){$("err").hidden=!m;$("err").textContent=m||""}
+function schedule(){clearInterval(timer);if($("auto").checked)timer=setInterval(()=>{if(document.visibilityState==="visible")load(true)},20000)}
+
+async function load(quiet){
+  const key=$("key").value.trim();
+  if(!endpoint){$("setup").hidden=false;return}
+  if(!key){showErr("請先輸入老師密碼。");return}
+  ls.set("sdgDashKey",key);
+  if(!quiet)$("stamp").textContent="載入中…";
+  try{
+    const r=await fetch(`${endpoint}?key=${encodeURIComponent(key)}&v=${ver}`);
+    const j=await r.json();
+    if(!j.ok){showErr(j.error==="wrong_key"?"老師密碼不對，請確認和 Code.gs 裡的 TEACHER_KEY 一樣。":"讀取失敗："+j.error);return}
+    showErr("");rows=j.rows.map(x=>Object.assign(x,{time:new Date(x.ts)})).sort((a,b)=>a.time-b.time);
+    $("stamp").textContent="更新於 "+new Date().toLocaleTimeString("zh-TW",{hour12:false});
+    render();
+  }catch(e){showErr("連不上試算表。請確認部署網址正確，且存取權限設為「所有人」。")}
+}
+
+function players(list){
+  const m=new Map();
+  list.forEach(e=>{if(e.type==="reset")return;let p=m.get(e.id);if(!p){p={id:e.id,cls:e.cls,name:e.name,events:[],decide:{},quiz:{},badges:new Set(),first:e.time,last:e.time,card:null,names:null,crises:0};m.set(e.id,p)}
+    p.events.push(e);p.last=e.time;if(e.name)p.name=e.name;
+    if(e.type==="decide"&&e.island)p.decide[e.island]=e;
+    if(e.type==="quiz"&&e.island&&p.quiz[e.island]==null)p.quiz[e.island]=e.correct;
+    if(e.type==="badge")p.badges.add(e.d.id);
+    if(e.type==="card")p.card=e.d;
+    if(e.type==="roles")p.names=e.d.names;
+    if(e.type==="crisis")p.crises++;});
+  return [...m.values()];
+}
+const fmtT=t=>t.toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit",hour12:false});
+const mins=(a,b)=>Math.max(0,Math.round((b-a)/60000));
+function status(p){const idle=(Date.now()-p.last)/60000;const n=Object.keys(p.decide).length;
+  if(p.card)return ["done","已交卡"];if(idle>5&&idle<90)return ["idle","停住 "+Math.round(idle)+" 分"];if(idle<=5)return ["live","進行中"];return ["done","已離開"]}
+
+function render(){
+  const classes=[...new Set(rows.map(r=>r.cls))].sort();
+  const cur=$("cls").value;$("cls").innerHTML=`<option value="">全部班級</option>`+classes.map(c=>`<option ${c===cur?"selected":""}>${esc(c)}</option>`).join("");
+  const list=rows.filter(r=>!$("cls").value||r.cls===$("cls").value);
+  const ps=players(list).sort((a,b)=>a.id.localeCompare(b.id,"zh-Hant",{numeric:true}));
+  const PRO=ver==="pro";
+  /* KPIs */
+  const dec=ps.map(p=>Object.keys(p.decide).length);
+  const qs=ps.flatMap(p=>Object.values(p.quiz));const qAcc=qs.length?Math.round(qs.filter(Boolean).length/qs.length*100):null;
+  const allDec=ps.flatMap(p=>Object.values(p.decide));
+  const secs=allDec.map(e=>e.d.secs).filter(x=>x>0&&x<1800);
+  const pred=allDec.filter(e=>e.option!==2&&e.correct!==null);const pAcc=pred.length?Math.round(pred.filter(e=>e.correct).length/pred.length*100):null;
+  const unan=allDec.filter(e=>e.d.unan).length;
+  const k=[[PRO?"參與組數":"參與人數",ps.length,`${ps.filter(p=>status(p)[0]==="live").length} 進行中`],
+    [PRO?"平均決議數":"平均完成任務",ps.length?(dec.reduce((a,b)=>a+b,0)/ps.length).toFixed(1):"–","/ 17"],
+    ["單字正確率",qAcc==null?"–":qAcc+"%",`${qs.length} 題作答`],
+    ["每次決定平均",secs.length?Math.round(secs.reduce((a,b)=>a+b,0)/secs.length)+" 秒":"–","從登島到決定"]];
+  if(PRO)k.push(["預測命中率",pAcc==null?"–":pAcc+"%",`${pred.length} 次預測`],["全票通過",allDec.length?Math.round(unan/allDec.length*100)+"%":"–","比例越低，討論越激烈"]);
+  else k.push(["交出島主卡",ps.filter(p=>p.card).length,`/ ${ps.length} 人`]);
+  $("kpis").innerHTML=k.map(([a,b,c])=>`<div class="kpi"><span class="lb">${a}</span><b>${b}</b><small>${c}</small></div>`).join("");
+  /* split */
+  const splits=SDG.map(s=>{const c=[0,0,0];ps.forEach(p=>{const e=p.decide[s.n];if(e&&e.option!=null)c[e.option]++});const t=c[0]+c[1]+c[2];return {s,c,t,bal:t?Math.min(c[0],c[1])/t:0}});
+  const maxBal=Math.max(...splits.filter(x=>x.t>=3).map(x=>x.bal),0);
+  $("lgC").hidden=!PRO;
+  $("split").innerHTML=splits.map(({s,c,t,bal})=>`<div class="srow"><span class="nm" title="${esc(s.zh)}"><span class="tag" style="background:${s.c}">${s.n}</span> ${esc(s.isle[0])}${t>=3&&bal===maxBal&&maxBal>0?' <span class="hot">最分歧</span>':""}</span>
+    <div class="sbar" role="img" aria-label="A ${c[0]}，B ${c[1]}，C ${c[2]}">${t?`<span class="sA" style="width:${c[0]/t*100}%"></span><span class="sB" style="width:${c[1]/t*100}%"></span><span class="sC" style="width:${c[2]/t*100}%"></span>`:""}</div>
+    <span class="n">${t?`${c[0]}:${c[1]}${PRO&&c[2]?":"+c[2]:""}`:"–"}</span></div>`).join("");
+  /* words */
+  const w=SDG.map(s=>{const a=ps.map(p=>p.quiz[s.n]).filter(x=>x!=null);return {s,n:a.length,wrong:a.filter(x=>!x).length}}).filter(x=>x.n).sort((a,b)=>b.wrong/b.n-a.wrong/a.n).slice(0,8);
+  $("words").innerHTML=w.length?w.map(x=>`<div><span><b>${esc(x.s.q[1][x.s.q[2]])}</b> ${esc(x.s.q[3])}</span><span>錯 ${x.wrong} / ${x.n}（${Math.round(x.wrong/x.n*100)}%）</span></div>`).join(""):`<span class="sub">還沒有作答紀錄。</span>`;
+  /* roster */
+  $("rosterH").textContent=PRO?"小組名單":"學生名單";
+  $("rosterHead").innerHTML=`<tr><th>${PRO?"組別":"座號"}</th><th>${PRO?"成員":"名字"}</th><th>狀態</th><th>${PRO?"決議":"任務"}</th><th>單字</th>${PRO?"<th>預測</th><th>全票</th>":"<th>徽章</th><th>頭銜</th>"}<th>開始</th><th>用時</th></tr>`;
+  $("roster").innerHTML=ps.length?ps.map(p=>{const st=status(p);const q=Object.values(p.quiz);const d=Object.values(p.decide);
+    const pr=d.filter(e=>e.option!==2&&e.correct!==null);
+    const members=p.names?Object.values(p.names).filter(Boolean).join("、"):"";
+    return `<tr class="r${selected===p.id?" sel":""}" data-id="${esc(p.id)}" tabindex="0"><td>${esc(PRO?p.id:p.id)}</td><td>${esc(PRO?(members||p.name):p.name)}</td>
+      <td><span class="pill ${st[0]}">${st[1]}</span></td><td>${d.length}</td><td>${q.filter(Boolean).length}/${q.length}</td>
+      ${PRO?`<td>${pr.filter(e=>e.correct).length}/${pr.length}</td><td>${d.filter(e=>e.d.unan).length}</td>`:`<td>${p.badges.size}</td><td>${esc(p.card?p.card.title||"":"")}</td>`}
+      <td>${fmtT(p.first)}</td><td>${mins(p.first,p.last)} 分</td></tr>`}).join(""):`<tr><td colspan="10" class="sub">${rows.length?"這個班級還沒有紀錄。":"還沒有學生報到。"}</td></tr>`;
+  $("roster").querySelectorAll("tr.r").forEach(tr=>{const f=()=>{selected=tr.dataset.id;render();$("tlCard").scrollIntoView({behavior:"smooth",block:"nearest"})};tr.addEventListener("click",f);tr.addEventListener("keydown",e=>{if(e.key==="Enter")f()})});
+  /* timeline */
+  const sp=ps.find(p=>p.id===selected);$("tlCard").hidden=!sp;
+  if(sp){$("tlH").textContent=`學習軌跡：${sp.id} ${PRO?"":sp.name}`;$("tlSub").textContent=`${fmtT(sp.first)} 開始，共 ${sp.events.length} 個動作，用時 ${mins(sp.first,sp.last)} 分鐘`;
+    $("tl").innerHTML=sp.events.map(e=>`<div class="ev ${e.type}${e.type==="quiz"&&!e.correct?" wrong":""}"><time>${fmtT(e.time)}</time><span class="ty">${typeName(e)}</span><span>${describe(e,PRO)}</span></div>`).join("")}
+  /* wall */
+  renderWall(ps,PRO);
+}
+function typeName(e){return {start:"報到",visit:"登島",quiz:"單字",decide:ver==="pro"?"決議":"決定",crisis:"危機卡",ripple:"連鎖",badge:"徽章",card:"交卡",roles:"角色"}[e.type]||e.type}
+function describe(e,PRO){const s=e.island?byN(e.island):null;const ab=i=>"ABC"[i]||"?";
+  switch(e.type){
+    case "start":return "開始遊戲";
+    case "roles":return "成員："+esc(Object.entries(e.d.names||{}).map(([k,v])=>`${ROLES.find(r=>r.id===k).zh} ${v}`).join("、"));
+    case "visit":return `${s.n} ${esc(s.isle[0])}`;
+    case "quiz":return `${s.n} ${esc(s.isle[0])}：選 <b>${esc(e.d.picked)}</b> ${e.correct?"✓":"✗（正解 "+esc(e.d.word)+"）"}`;
+    case "decide":{const o=e.option===2?(e.d.c?e.d.c.text:"自創方案"):s.o[e.option][0];
+      let t=`${s.n} ${esc(s.isle[0])}：<b>${ab(e.option)}</b> ${esc(o)}${e.d.secs?`（${e.d.secs} 秒）`:""}`;
+      if(PRO){t+=`<br>${e.d.unan?"4–0":"3–1"}｜${e.option===2?"自創":e.correct?"預測命中":"預測未中"}｜證據 ${ab(e.d.ev)}｜理由：${esc(e.d.reason)}`;
+        const m=Object.entries(e.d.minority||{});if(m.length)t+=`<br>少數意見：${m.map(([k,v])=>`${ROLES.find(r=>r.id===k).zh}：${esc(v)}`).join("；")}`}
+      return t}
+    case "crisis":return `${esc(CRISES[e.d.card]?CRISES[e.d.card].t[0]:"")}：選 ${ab(e.option)}`;
+    case "ripple":return esc((RIPPLES[e.d.key]||[[""]])[0][0]);
+    case "badge":{const b=(PRO?BADGES_PRO:BADGES_BASIC).find(x=>x[0]===e.d.id);return b?b[1]:esc(e.d.id)}
+    case "card":return PRO?`複製決議紀錄（預測 ${e.d.hits}/${e.d.tries}）`:`頭銜 ${esc(e.d.title||"")}｜${esc(e.d.sentence||"")}`;
+    default:return ""}}
+function renderWall(ps,PRO){
+  if(PRO){
+    $("wallH").textContent="理由牆";$("wallSub").textContent="每組的決議、證據、理由和少數意見。選一座島，比較各組怎麼想。";
+    const islands=[...new Set(ps.flatMap(p=>Object.keys(p.decide).map(Number)))].sort((a,b)=>a-b);
+    if(!islands.includes(wallIsland))wallIsland=islands[0]||0;
+    $("wallFilter").innerHTML=islands.length?`<select id="wallSel" aria-label="島嶼">${islands.map(n=>`<option value="${n}" ${n===wallIsland?"selected":""}>SDG ${n} ${esc(byN(n).isle[0])}</option>`).join("")}</select>`:"";
+    const sel=$("wallSel");if(sel)sel.addEventListener("change",()=>{wallIsland=+sel.value;render()});
+    const items=ps.map(p=>[p,p.decide[wallIsland]]).filter(x=>x[1]);
+    $("wall").innerHTML=items.length?items.map(([p,e])=>{const s=byN(wallIsland);const o=e.option===2?(e.d.c?e.d.c.text:""):s.o[e.option][0];const m=Object.entries(e.d.minority||{});
+      return `<div class="rs"><div class="meta">${esc(p.id)}｜${e.d.unan?"4–0 全票":"3–1"}｜${e.option===2?"自創方案":e.correct?"預測命中":"預測未中"}</div>
+        <div><b>${"ABC"[e.option]}</b> ${esc(o)}</div><div>證據：${esc(s.ev[e.d.ev]?s.ev[e.d.ev][0]:"")}</div><div>理由：${esc(e.d.reason)}</div>
+        ${m.length?`<div class="meta">少數意見：${m.map(([k,v])=>`${ROLES.find(r=>r.id===k).zh}：${esc(v)}`).join("；")}</div>`:""}</div>`}).join(""):`<span class="sub">還沒有決議。</span>`;
+  }else{
+    $("wallH").textContent="反思牆";$("wallSub").textContent="學生交出的英文辯護句。可以挑幾句匿名投影，一起修改文法和論點。";$("wallFilter").innerHTML="";
+    const items=ps.filter(p=>p.card&&p.card.sentence);
+    $("wall").innerHTML=items.length?items.map(p=>`<div class="rs"><div class="meta">${esc(p.id)} ${esc(p.name)}｜${esc(p.card.title||"")}</div><div>${esc(p.card.sentence)}</div></div>`).join(""):`<span class="sub">還沒有人交出島主卡。</span>`;
+  }
+}
+schedule();
+if(endpoint&&$("key").value)load();
+</script>
+</body>
+</html>

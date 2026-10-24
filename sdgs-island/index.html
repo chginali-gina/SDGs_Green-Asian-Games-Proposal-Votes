@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SDGs 永續島</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+:root{--sea:#bfe0ea;--paper:#fbfdfc;--ink:#14313b;--muted:#4f6b74;--line:#d3e4e9;--accent:#0d6c8a;
+  --display:"Huninn","Noto Sans TC",system-ui,sans-serif;--body:"Noto Sans TC",system-ui,-apple-system,"PingFang TC",sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--sea:#0f2a35;--paper:#132b35;--ink:#e7f2f5;--muted:#9db7bf;--line:#24485a;--accent:#5cc3e0;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--sea);color:var(--ink);font-family:var(--body);line-height:1.6}
+.wrap{max-width:720px;margin:0 auto;padding-block:40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,7vw,46px);margin:0;line-height:1.15}
+p{color:var(--muted);margin:8px 0 0}
+.cards{display:grid;gap:12px;margin-top:24px}
+a.card{display:block;background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:18px 20px;color:var(--ink);text-decoration:none}
+a.card:hover,a.card:focus-visible{border-color:var(--accent);outline:none}
+a.card b{font-family:var(--display);font-weight:400;font-size:24px;display:block}
+a.card span{color:var(--muted);font-size:14px}
+a.card.teacher{background:transparent}
+footer{margin-top:30px;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SDGs 永續島<br><span style="font-size:.5em;color:var(--accent)">SDGs Island</span></h1>
+  <p>依照老師的指示，選擇今天要玩的版本。<br>Choose the version your teacher tells you to play.</p>
+  <div class="cards">
+    <a class="card" href="island.html"><b>初期基本版 Starter</b><span>一人一台，登島認識 17 個目標與取捨 · Play alone and learn the 17 goals</span></a>
+    <a class="card" href="council.html"><b>後期進階版 Island Council</b><span>四人一組，預測、證據、理由、共識 · Four players decide together</span></a>
+    <a class="card teacher" href="dashboard.html"><b>老師儀表板</b><span>查看全班學習軌跡（需要老師密碼）</span></a>
+  </div>
+  <footer>Gina的SDGs多元選修課</footer>
+</div>
+</body>
+</html>
